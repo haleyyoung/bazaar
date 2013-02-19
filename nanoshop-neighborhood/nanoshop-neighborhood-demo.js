@@ -1,11 +1,42 @@
 /*
- * This demo script uses the Nanoshop module to apply a simple
- * filter on a canvas drawing.
+ * This demo script uses the NanoshopNeighborhood module to apply a
+ * "pixel neighborhood" filter on a canvas drawing.
  */
 (function () {
     var canvas = $("#picture")[0],
         renderingContext = canvas.getContext("2d"),
         gradient;
+
+    // Some edge lines to test for wraparound bleeding.
+    renderingContext.strokeStyle = "yellow";
+    renderingContext.beginPath();
+    renderingContext.moveTo(0, 0);
+    renderingContext.lineTo(canvas.width - 1, 0);
+    renderingContext.stroke();
+
+    renderingContext.strokeStyle = "cyan";
+    renderingContext.beginPath();
+    renderingContext.moveTo(0, canvas.height - 1);
+    renderingContext.lineTo(canvas.width - 1, canvas.height - 1);
+    renderingContext.stroke();
+
+    renderingContext.strokeStyle = "green";
+    renderingContext.beginPath();
+    renderingContext.moveTo(0, 0);
+    renderingContext.lineTo(0, canvas.height - 1);
+    renderingContext.stroke();
+
+    renderingContext.strokeStyle = "red";
+    renderingContext.beginPath();
+    renderingContext.moveTo(canvas.width - 1, 0);
+    renderingContext.lineTo(canvas.width - 1, canvas.height / 2);
+    renderingContext.stroke();
+
+    renderingContext.strokeStyle = "blue";
+    renderingContext.beginPath();
+    renderingContext.moveTo(canvas.width - 1, canvas.height / 2);
+    renderingContext.lineTo(canvas.width - 1, canvas.height - 1);
+    renderingContext.stroke();
 
     // Adapted from original code by Tyler Nichols.
     gradient = renderingContext.createRadialGradient(120, 120, 15, 120, 120, 75);
@@ -54,12 +85,11 @@
     $("#apply-filter-button").click(function () {
         // Filter time.
         renderingContext.putImageData(
-            Nanoshop.applyFilter(
+            NanoshopNeighborhood.applyFilter(
+                renderingContext,
                 renderingContext.getImageData(0, 0, canvas.width, canvas.height),
-                // This is a basic "darkener."
-                function (r, g, b, a) {
-                    return [r / 2, g / 2, b / 2, a];
-                }
+                NanoshopNeighborhood.darkener
+                //NanoshopNeighborhood.averager // Convenience comment for easy switching.
             ),
             0, 0
         );
